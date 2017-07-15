@@ -10,6 +10,7 @@ def testrpccall(jsonArgs):
 
 def argsToJson(method, params, nid):
     d = {"jsonrpc": 2.0, "method": method, "params": params, "id": nid}
+    print d
     return json.dumps(d)
 
 def main():
@@ -18,7 +19,11 @@ def main():
     parser.add_argument('id', metavar='I',nargs="?",default=1)
     parser.add_argument('params', metavar='P', nargs='*', default=[])
     cmd_dict= parser.parse_args().__dict__
-    output = testrpccall(argsToJson(''.join(cmd_dict['method']),cmd_dict['params'], 1))
+    output = ""
+    if (cmd_dict['method'] == 'send_transaction'):
+        print cmd_dict['params']
+    else:
+        output = testrpccall(argsToJson(''.join(cmd_dict['method']),cmd_dict['params'], 1))
     pprint.pprint(json.loads(output))
 
 if __name__ == '__main__':
