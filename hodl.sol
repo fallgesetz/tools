@@ -45,7 +45,7 @@ contract ERC20 {
 }
 
 contract HODLToken is ERC20{
-    // ERC20 compliant token that takes your money and doesn't really give it back.
+    // ERC20 compliant token that takes your money and does (does it?) really give it back.
     string public constant symbol = "HODL";   
     string public constant name = "TAKE MY MONEY PLEASE";
     uint8 public constant decimals = 18;
@@ -73,10 +73,11 @@ contract HODLToken is ERC20{
         holdingTime[msg.sender] = howMuchTime;
     }
     
-    //fails due to reentrancy
     function withdraw() returns (bool canYou) {
         if(holdingTime[msg.sender] + beginTime < block.timestamp) {
             msg.sender.transfer(holdingEthers[msg.sender]);
+            holdingEthers[msg.sender] = 0;
+            holdingTime[msg.sender] = 0;
             return true;
         }
         return false;
@@ -93,6 +94,5 @@ contract HODLToken is ERC20{
     }
     
 }
-
 
 
