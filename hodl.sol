@@ -3,7 +3,7 @@
 contract ERC20 {
     mapping(address => uint256) balances;
     mapping(address => mapping (address => uint256)) allowed;
-    uint256 public totalSupply; //apparently public 
+    uint256 public totalSupply; //apparently public
 
 
     function transfer(address _to, uint256 _value) returns (bool success) {
@@ -46,53 +46,59 @@ contract ERC20 {
 
 contract HODLToken is ERC20{
     // ERC20 compliant token that takes your money and does (does it?) really give it back.
-    string public constant symbol = "HODL";   
+    string public constant symbol = "HODL";
     string public constant name = "TAKE MY MONEY PLEASE";
     uint8 public constant decimals = 18;
-    
+
     mapping(address => uint) holdingTime;
     mapping(address => uint) holdingEthers;
-    
+
     uint public beginTime;
-    uint public beginBlock; 
+    uint public beginBlock;
     address owner;
-    
+
     modifier isOwner() {
         require(msg.sender == owner);
         _;
     }
-    
+
+    modifier holdsHODL() {
+      require(holdingEthers[msg.sender] > 0);
+      _;
+    }
+
     function HODLToken() {
         beginTime = block.timestamp;
         beginBlock = block.number;
         owner = msg.sender;
     }
-    
+
     function payIn(uint howMuchTime) payable {
         holdingEthers[msg.sender] = msg.value;
         holdingTime[msg.sender] = howMuchTime;
     }
-    
-    function withdraw() returns (bool canYou) {
+
+    //two different withdraws is exploitable! oops?
+
+    function withdraw() holdsHODL returns (bool canYou) {
         if(holdingTime[msg.sender] + beginTime < block.timestamp) {
-            msg.sender.transfer(holdingEthers[msg.sender]);
-            holdingEthers[msg.sender] = 0;
-            holdingTime[msg.sender] = 0;
+            if(msg.sender.send(holdingEthers[msg.sender])) {
+              holdingEthers[msg.sender] = 0;
+              holdingTime[msg.sender] = 0;
+            }
             return true;
         }
         return false;
     }
-    
+
     function ownerWithdraw(uint amount) isOwner {
         require(amount < this.balance);
         msg.sender.transfer(amount);
     }
 
-    
+
     function transferOwnership(address newOwner) isOwner {
         owner = newOwner;
     }
-    
+
 }
-
-
