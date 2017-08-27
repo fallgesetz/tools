@@ -24,6 +24,17 @@ def insertIntoSqlite(flightObject):
     conn.commit()
     conn.close()
 
+
+"""
+This script gets google flight info for 
+OAK-DET 
+and 
+DET-OAK 
+on Spirit Airlines, 
+stuffs arrival and departure times into a sqlite db
+and readies for the oncoming regression.
+"""
+
 obj = getFlightInfo(849)
 insertIntoSqlite(obj)
 obj = getFlightInfo(848)
